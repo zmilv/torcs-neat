@@ -28,15 +28,18 @@ for i, item in enumerate(cars):
     result_dict[generation].append(fitnesses[i])
     laptimes_dict[generation].append(laptimes[i])
 
-# Calculate the maximum result and average of top 5 results from each generation
+# Calculate the maximum and average results from each generation
 max_results = []
 top5_averages = []
+averages = []
 for key, results in result_dict.items():
     max_results.append(max(results))
     results.sort(reverse=True)
     top5_results = results[:5]
     top5_average = sum(top5_results) / len(top5_results)
     top5_averages.append(top5_average)
+    average = sum(results) / len(results)
+    averages.append(average)
 
 # Get data needed for the lap time plot
 laptime_generations = generations
@@ -52,8 +55,16 @@ for key, results in laptimes_dict.items():
 # Plot graphs
 fig, ax1 = plt.subplots()
 
-ax1.plot(generations, max_results, label="Maximum Fitness", color="dodgerblue")
-ax1.plot(generations, top5_averages, label="Top 5 average Fitness", color="orange")
+ax1.plot(
+    generations, max_results, label="Maximum Fitness in generation", color="dodgerblue"
+)
+ax1.plot(generations, averages, label="Average Fitness in generation", color="orange")
+ax1.plot(
+    generations,
+    top5_averages,
+    label="Average Fitness from top 5 genomes in generation",
+    color="orchid",
+)
 ax1.set_xlabel("Generations")
 ax1.set_ylabel("Fitness")
 
@@ -61,7 +72,7 @@ ax2 = ax1.twinx()
 ax2.scatter(
     laptime_generations,
     best_laptimes,
-    label="Best Lap time",
+    label="Best Lap time in generation",
     color="mediumseagreen",
     marker=".",
 )
@@ -71,5 +82,5 @@ lines, labels = ax1.get_legend_handles_labels()
 lines2, labels2 = ax2.get_legend_handles_labels()
 ax1.legend(lines + lines2, labels + labels2)
 
-plt.title("Fitness and Lap time evolution ")
+plt.title("NEAT Results")
 plt.show()
