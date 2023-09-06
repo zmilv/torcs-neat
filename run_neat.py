@@ -6,7 +6,7 @@ import neat
 import numpy as np
 
 
-NO_OF_GENERATIONS = 50
+NO_OF_GENERATIONS = 100
 MAX_STEPS = 1000
 
 
@@ -14,6 +14,23 @@ generation = -1
 car_list = []
 fitness_list = []
 laptime_list = []
+
+
+def main(train=0):  # 1 - Train, 0 - Run (test) saved genome
+    # Set configuration file
+    config_path = "./config-neat.txt"
+    config = neat.config.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path,
+    )
+
+    if train:
+        train_ai(config)
+    else:
+        test_ai(config)
 
 
 def train_ai(config):
@@ -35,7 +52,7 @@ def train_ai(config):
 
     # Save the best genome
     print("Saving best genome")
-    with open("best.pickle", "wb") as f:
+    with open("genome.pickle", "wb") as f:
         pickle.dump(winner, f)
 
 
@@ -209,15 +226,4 @@ def test_ai(config):
 
 
 if __name__ == "__main__":
-    # Set configuration file
-    config_path = "./config-neat.txt"
-    config = neat.config.Config(
-        neat.DefaultGenome,
-        neat.DefaultReproduction,
-        neat.DefaultSpeciesSet,
-        neat.DefaultStagnation,
-        config_path,
-    )
-
-    train_ai(config)
-    # test_ai(config)
+    main()
