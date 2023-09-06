@@ -1,0 +1,5 @@
+neat-python~=0.92
+gym~=0.26.2
+numpy~=1.19.5
+matplotlib~=3.3.4
+graphviz~=0.19.1
