@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Source: https://github.com/ugo-nama-kun/gym_torcs/blob/master/snakeoil3_gym.py
+#
 # snakeoil.py
 # Chris X Edwards <snakeoil@xed.ch>
 # Snake Oil is a Python library for interfacing with a TORCS
@@ -204,7 +206,7 @@ class Client:
                         os.system("torcs -nofuel -nodamage -nolaptime -vision &")
 
                     time.sleep(1.0)
-                    os.system("sh autostart.sh")
+                    os.system("sh dependencies/autostart.sh")
                     n_fail = 5
                 n_fail -= 1
 

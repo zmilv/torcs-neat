@@ -1,6 +1,6 @@
-import pickle
 import neat
-import visualize
+import pickle
+from dependencies import visualize
 
 
 config_path = "./config-neat.txt"

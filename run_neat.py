@@ -57,7 +57,7 @@ def train_ai(config):
 
 
 def run_generation(genomes, config):
-    from gym_torcs import TorcsEnv
+    from dependencies.gym_torcs import TorcsEnv
 
     # Init NEAT
     nets = []
@@ -202,7 +202,7 @@ def save_results():
 
 
 def test_ai(config):
-    from gym_torcs import TorcsEnv
+    from dependencies.gym_torcs import TorcsEnv
 
     with open("genome.pickle", "rb") as f:
         winner = pickle.load(f)

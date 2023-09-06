@@ -1,3 +1,5 @@
+# Source: https://github.com/ugo-nama-kun/gym_torcs/blob/master/gym_torcs.py
+
 import collections as col
 import copy
 import os
@@ -7,7 +9,7 @@ import numpy as np
 from gym import spaces
 
 from run_neat import calculate_fitness
-import snakeoil3_gym as snakeoil3
+import dependencies.snakeoil3_gym as snakeoil3
 
 
 class TorcsEnv:
@@ -34,7 +36,7 @@ class TorcsEnv:
         else:
             os.system("torcs -nofuel -nolaptime &")
         time.sleep(0.5)
-        os.system("sh autostart.sh")
+        os.system("sh dependencies/autostart.sh")
         time.sleep(0.5)
 
         # Initialize client
@@ -168,6 +170,7 @@ class TorcsEnv:
                 client.R.d["meta"] = True
 
         if np.cos(obs["angle"]) < 0:  # Episode terminated if the agent runs backward
+            print("Ran backwards")
             episode_terminate = True
             client.R.d["meta"] = True
 
@@ -222,7 +225,7 @@ class TorcsEnv:
         else:
             os.system("torcs -nofuel -nolaptime &")
         time.sleep(0.5)
-        os.system("sh autostart.sh")
+        os.system("sh dependencies/autostart.sh")
         time.sleep(0.5)
 
     def agent_to_torcs(self, u):
