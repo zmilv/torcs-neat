@@ -5,7 +5,6 @@ from itertools import count
 import neat
 import numpy as np
 
-from gym_torcs import TorcsEnv
 
 NO_OF_GENERATIONS = 50
 MAX_STEPS = 1000
@@ -41,6 +40,8 @@ def train_ai(config):
 
 
 def run_generation(genomes, config):
+    from gym_torcs import TorcsEnv
+
     # Init NEAT
     nets = []
     ge = []
@@ -62,17 +63,17 @@ def run_generation(genomes, config):
         print(f"Generation {generation} Car {i}")
 
         laptime = 0.0
-        u = [0, 0, 0, 0]
+        action = [0, 0, 0, 0]
         for x in range(MAX_STEPS):
-            obs, reward, meta, _, laptime_obs = env.step(u)
+            obs, reward, meta, _, laptime_obs = env.step(action)
             if meta:
                 break
-            u = control_agent(obs, u, nets, i)
+            action = control_agent(obs, action, nets, i)
 
             # Update car and fitness
             genomes[i][1].fitness += reward
 
-            if laptime == 0.0 and laptime_obs > 0.0:  # Register standing start laptime
+            if laptime == 0.0 and laptime_obs > 0.0:  # Register standing start lap time
                 laptime = laptime_obs
 
         # Append results list for saving later
@@ -94,7 +95,33 @@ def run_generation(genomes, config):
     print("Finished generation")
 
 
-def control_agent(obs, u, nets, i):
+def calculate_fitness(obs, obs_prev):
+    """Genome fitness calculation. Called by step() in gym_torcs.py"""
+    speed = obs["speedX"]
+    v_long = speed * np.cos(obs["angle"])
+    track_pos = np.abs(obs["trackPos"])
+
+    off_track_coef = 5
+    collision_coef = 10
+
+    # Penalty calculation
+    penalty = 0
+    # Out-of-track detection
+    if track_pos > 1:
+        if track_pos > 2:
+            track_pos = 2
+        penalty += off_track_coef * (track_pos - 1)
+    # Collision detection
+    if obs["damage"] - obs_prev["damage"] > 0:
+        print("Damage!")
+        penalty += collision_coef
+
+    # Fitness function
+    fitness = (1 - penalty) * v_long
+    return fitness
+
+
+def control_agent(obs, action, nets, i):
     # Get sensor readings from observation
     speedX = obs.speedX
     speedY = obs.speedY
@@ -130,18 +157,18 @@ def control_agent(obs, u, nets, i):
 
     # Convert network output to TORCS actions
     steering_output = output[0]
-    u[0] = steering_output
+    action[0] = steering_output
     throttle_brake_output = output[1]
     if throttle_brake_output > 0:
-        u[1] = throttle_brake_output
-        u[2] = 0
+        action[1] = throttle_brake_output
+        action[2] = 0
     elif throttle_brake_output < 0:
-        u[2] = -throttle_brake_output
-        u[1] = 0
+        action[2] = -throttle_brake_output
+        action[1] = 0
     else:
-        u[1] = 0
-        u[2] = 0
-    return u
+        action[1] = 0
+        action[2] = 0
+    return action
 
 
 def save_results():
@@ -158,6 +185,8 @@ def save_results():
 
 
 def test_ai(config):
+    from gym_torcs import TorcsEnv
+
     with open("genome.pickle", "rb") as f:
         winner = pickle.load(f)
 

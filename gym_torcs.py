@@ -6,6 +6,7 @@ import time
 import numpy as np
 from gym import spaces
 
+from run_neat import calculate_fitness
 import snakeoil3_gym as snakeoil3
 
 
@@ -139,36 +140,7 @@ class TorcsEnv:
         # Make an obsevation from a raw observation vector from TORCS
         self.observation = self.make_observaton(obs)
 
-        track = np.array(obs["track"])
-        trackPos = np.array(obs["trackPos"])
-        sp = np.array(obs["speedX"])
-        damage = np.array(obs["damage"])
-        rpm = np.array(obs["rpm"])
-
-        v_long = sp * np.cos(obs["angle"])
-        v_trav = np.abs(sp * np.sin(obs["angle"]))
-        track_pos = np.abs(obs["trackPos"])
-
-        # Fitness/Reward setting here #######################################
-        off_track_coef = 5
-        collision_coef = 10
-
-        # Penalty calculation
-        penalty = 0
-        # out-of-track detection
-        if track_pos > 1:
-            if track_pos > 2:
-                track_pos = 2
-            penalty += off_track_coef * (track_pos - 1)
-        # collision detection
-        if obs["damage"] - obs_pre["damage"] > 0:
-            print("Damage!")
-            penalty += collision_coef
-
-        # Fitness/reward function
-        progress = (1 - penalty) * v_long
-
-        reward = progress
+        reward = calculate_fitness(obs, obs_pre)
 
         # Termination judgement #######################################
         episode_terminate = False
@@ -183,6 +155,9 @@ class TorcsEnv:
         #        print("No progress")
         #        episode_terminate = True
         #        client.R.d['meta'] = True
+
+        sp = np.array(obs["speedX"])
+        v_long = sp * np.cos(obs["angle"])
 
         if (
             self.terminal_judge_start < self.time_step
